@@ -1,0 +1,24 @@
+{
+  "name": "maliknaik/webthing-php",
+  "type": "library",
+  "description": "A PHP Web Thing Server implementation.",
+  "keywords": ["webthing", "php", "mozilla"],
+  "homepage": "https://github.com/maliknaik16/webthing-php",
+  "authors": [
+    {
+      "name": "Malik Naik",
+      "email": "maliknaik16@gmail.com",
+      "homepage": "http://maliknaik.me/",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "WebThing\\": "src/"
+    }
+  },
+  "require": {
+    "cboden/ratchet": "*",
+    "ramsey/uuid": "*"
+  }
+}
