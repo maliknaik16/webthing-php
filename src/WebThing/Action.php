@@ -7,6 +7,8 @@ namespace WebThing;
  * High level Action base class implementation.
  */
 
+use Thing;
+
 /**
  * Represents an individual action on a thing.
  */
