@@ -7,7 +7,7 @@ interface ThingInterface {
   /**
    * Return the thing state as a Thing Description.
    */
-  public function getThingDescription();
+  public function asThingDescription();
 
   /**
    * Get the href of this thing
