@@ -1,6 +1,7 @@
 <?php
 
 namespace WebThing\Server;
+error_reporting(E_ALL);
 
 /**
  * @file
@@ -87,6 +88,11 @@ class Server {
   protected $wsHandler;
 
   /**
+   * The requested path.
+   */
+  protected $path;
+
+  /**
    * Initialize the sockets and EventLoop.
    */
   public function __construct($address = '127.0.0.1', $httpPort = 80, $wsPort = 8080) {
@@ -97,9 +103,10 @@ class Server {
     $this->httpSocketServer = new SocketServer($address . ':' . $httpPort, $this->loop);
     $this->wsSocketServer = new SocketServer($address . ':' . $wsPort, $this->loop);
 
-    $this->httpServer = new ReactHttpServer(function(ServerRequestHandler $request) {
-      $this->requestHandler($request);
+    $this->httpServer = new ReactHttpServer(function(ServerRequestInterface $request) {
+      return $this->httpRequestHandler($request);
     });
+
     $this->wsHandler = new WebSocketHandler();
   }
 
@@ -107,11 +114,19 @@ class Server {
    * HTTP Request handler callback.
    */
   public function httpRequestHandler(ServerRequestInterface $request) {
-    return new Response(200, [
-        'Content-Type' => 'text/plain'
-      ],
-      'Hello, World'
-    );
+
+    $method = $request->getMethod() ?? 'GET';
+    $this->path = $request->getUri()->getPath();
+
+    if($method == 'GET') {
+      return $this->get($request);
+    }else if($method == 'POST') {
+      return $this->post($request);
+    }else if($method == 'PUT') {
+      return $this->put($request);
+    }
+
+    return $this->simpleMessage('NOT FOUND');
   }
 
   /**
@@ -137,9 +152,50 @@ class Server {
   }
 
   /**
-   * Start the loop
+   * Start the HTTP Server.
    */
-  public function start() {
+  public function get(ServerRequestInterface $request) {
+    return $this->simpleMessage('GET Request');
+  }
+
+  /**
+   * Start the HTTP Server.
+   */
+  public function post(ServerRequestInterface $request) {
+    return $this->simpleMessage('POST Request');
+  }
+
+  /**
+   * Start the HTTP Server.
+   */
+  public function put(ServerRequestInterface $request) {
+    return $this->simpleMessage('PUT Request');
+  }
+
+  /**
+   * Simple Message Response.
+   */
+  public function simpleMessage($msg) {
+    return new Response(200, [
+        'Content-Type' => 'text/plain',
+      ],
+      $msg
+    );
+  }
+
+  /**
+   * Start the loop.
+   */
+  public function startLoop() {
+    $this->loop->run();
+  }
+
+  /**
+   * Start the server.
+   */
+  public function startServer() {
+    $this->startHttpServer();
+    $this->startWsServer();
     $this->loop->run();
   }
 }
