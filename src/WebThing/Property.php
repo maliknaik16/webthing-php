@@ -13,7 +13,7 @@ use DeepCopy\DeepCopy;
 /**
  * Represents an individual state value of a thing.
  */
-class Property {
+class Property implements PropertyInterface {
 
   /**
    * The Web Thing.
@@ -76,25 +76,25 @@ class Property {
   }
 
   /**
-   * Validate new property value before setting it.
+   * {@inheritdoc}
    */
   public function validateValue($value) {
     $validator = new Validator();
     // TODO: CHECK OUT THIS LINE TO RAISE EXCEPTION
     if(isset($this->metadata['readOnly']) && $this->metadata['readOnly'] == true) {
-      throw new Exception('Read-only property');
+      throw new \Exception("Read-only property '" . $this->name . "'.");
     }
 
-    $vvalue = $this->value->get();
+    $vvalue = $value->get();
     $validator->validate($vvalue, $this->metadata);
 
     if(!$validator->isValid()) {
-      throw new Exception('Invalid property value');
+      throw new \Exception("Invalid property value for '" . $this->name . "'.");
     }
   }
 
   /**
-   * Get the property description.
+   * {@inheritdoc}
    */
   public function asPropertyDescription() {
     $copier = new DeepCopy();
@@ -114,28 +114,28 @@ class Property {
   }
 
   /**
-   * Set the prefix of any hrefs associated with this property.
+   * {@inheritdoc}
    */
   public function setHrefPrefix($prefix) {
     $this->href_prefix = $prefix;
   }
 
   /**
-   * Get the href of this property
+   * {@inheritdoc}
    */
   public function getHref() {
     return $this->href_prefix;
   }
 
   /**
-   * Get the current property value.
+   * {@inheritdoc}
    */
   public function getValue() {
     return $this->value->get();
   }
 
   /**
-   * Set the current value of the property.
+   * {@inheritdoc}
    */
   public function setValue($value) {
     $this->validateValue($value);
@@ -143,21 +143,21 @@ class Property {
   }
 
   /**
-   * Get the name of this property.
+   * {@inheritdoc}
    */
   public function getName() {
     return $this->name;
   }
 
   /**
-   * Get the thing associated with this property.
+   * {@inheritdoc}
    */
   public function getThing() {
     return $this->thing;
   }
 
   /**
-   * Get the metadata associated with this property.
+   * {@inheritdoc}
    */
   public function getMetadata() {
     return $this->metadata;
