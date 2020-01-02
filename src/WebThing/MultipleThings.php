@@ -13,7 +13,7 @@ namespace WebThing;
 class MultipleThings {
 
   /**
-   * @array WebThing\Thing
+   * @var WebThing\Thing[]
    */
   protected $things;
 
@@ -25,8 +25,10 @@ class MultipleThings {
   /**
    * Initialize the container.
    *
-   * @param $thing -- a thing to store.
-   * @param $name -- the mDNS server name.
+   * @param $thing
+   *  a thing to store.
+   * @param $name
+   *  the mDNS server name.
    */
   public function __construct(Thing $things, $name) {
     $this->things = $things;
@@ -41,9 +43,15 @@ class MultipleThings {
   public function getThing($index) {
     $idx = intval($index);
 
-    if($idx == 0 && $index[0] !== '0') {
+    if($idx == 0 && !isset($this->things[$idx])) {
+      return null;
     }
-    return $this->thing;
+
+    if($idx < 0 || $idx >= count($this->things)) {
+      return null;
+    }
+
+    return $this->things[$idx];
   }
 
   /**

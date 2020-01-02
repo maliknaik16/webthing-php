@@ -2,7 +2,6 @@
 
 namespace WebThing;
 
-require '../../vendor/autoload.php';
 /**
  * @file
  * The Thing class implementation.
