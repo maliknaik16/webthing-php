@@ -10,7 +10,7 @@ namespace WebThing;
 /**
  * Represents an individual event from a thing.
  */
-class Event {
+class Event implements EventInterface {
 
   /**
    * Thing this event belongs to.
@@ -24,14 +24,14 @@ class Event {
    *
    * @var string
    */
-  protected = $name;
+  protected $name;
 
   /**
    * The data associated with the event.
    *
    * @var array
    */
-  protected = $data;
+  protected $data;
 
 
   /**
@@ -39,7 +39,7 @@ class Event {
    *
    * @var time
    */
-  protected = $time;
+  protected $time;
 
   /**
    * Initialize the object.
@@ -52,7 +52,7 @@ class Event {
   }
 
   /**
-   * Get the event description.
+   * {@inheritdoc}
    */
   public function asEventDescription() {
     $description = [
@@ -69,28 +69,28 @@ class Event {
   }
 
   /**
-   * Get the thing associated with this event.
+   * {@inheritdoc}
    */
   public function getThing() {
     return $this->thing;
   }
 
   /**
-   * Get the event's name.
+   * {@inheritdoc}
    */
   public function getName() {
     return $this->name;
   }
 
   /**
-   * Get the event's data.
+   * {@inheritdoc}
    */
   public function getData() {
     return $this->data;
   }
 
   /**
-   * Get the event's timestamp.
+   * {@inheritdoc}
    */
   public function getTime() {
     return $this->time;
