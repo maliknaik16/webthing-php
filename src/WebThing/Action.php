@@ -2,6 +2,7 @@
 
 namespace WebThing;
 
+require '../../vendor/autoload.php';
 /**
  * @file
  * Action class implementation.
@@ -10,7 +11,7 @@ namespace WebThing;
 /**
  * Represents an individual action on a thing.
  */
-class Action {
+class Action implements ActionInterface {
 
   /**
    * ID of this action.
@@ -24,7 +25,7 @@ class Action {
    *
    * @var Thing
    */
-  protected = $thing;
+  protected $thing;
 
   /**
    * Name of this action.
@@ -78,7 +79,7 @@ class Action {
   /**
    * Initialize the object.
    */
-  public function __construct($id, Thing $thing, $name, $input) {
+  public function __construct(Thing $thing, $id, $name, $input) {
     $this->id = $id;
     $this->thing = $thing;
     $this->name = $name;
@@ -91,7 +92,7 @@ class Action {
   }
 
   /**
-   * Get the action description.
+   * {@inheritdoc}
    */
   public function asActionDescription() {
     $description = [
@@ -114,70 +115,70 @@ class Action {
   }
 
   /**
-   * Set the prefix of any hrefs associated with this action.
+   * {@inheritdoc}
    */
   public function setHrefPrefix($prefix) {
     $this->href_prefix = $prefix;
   }
 
   /**
-   * Get this action's id.
+   * {@inheritdoc}
    */
   public function getId() {
     return $this->id;
   }
 
   /**
-   * Get this action's name.
+   * {@inheritdoc}
    */
   public function getName() {
     return $this->name;
   }
 
   /**
-   * Get this action's href.
+   * {@inheritdoc}
    */
   public function getHref() {
     return $this->href_prefix . $this->href;
   }
 
   /**
-   * Get this action's status.
+   * {@inheritdoc}
    */
   public function getStatus() {
     return $this->status;
   }
 
   /**
-   * Get the thing associated with this action.
+   * {@inheritdoc}
    */
   public function getThing() {
     return $this->thing;
   }
 
   /**
-   * Get the time the action was requested.
+   * {@inheritdoc}
    */
   public function getTimeRequested() {
     return $this->time_requested;
   }
 
   /**
-   * Get the time the action was completed.
+   * {@inheritdoc}
    */
   public function getTimeCompleted() {
     return $this->time_completed;
   }
 
   /**
-   * Get the inputs for this action.
+   * {@inheritdoc}
    */
   public function getInput() {
     return $this->input;
   }
 
   /**
-   * Start performing the action.
+   * {@inheritdoc}
    */
   public function start() {
     $this->status = 'pending';
@@ -187,19 +188,19 @@ class Action {
   }
 
   /**
-   * Override this method with the code necessary to perform the action.
+   * {@inheritdoc}
    */
   public function performAction() {
   }
 
   /**
-   * Override this method with the code necessary to cancel the action.
+   * {@inheritdoc}
    */
   public function cancel() {
   }
 
   /**
-   * Finish performing the action.
+   * {@inheritdoc}
    */
   public function finish() {
     $this->status = 'completed';
