@@ -2,6 +2,7 @@
 
 namespace WebThing;
 
+require '../../vendor/autoload.php';
 /**
  * @file
  * The Thing class implementation.
@@ -13,7 +14,7 @@ use JsonSchema\Validator;
 /**
  * Represents an Web Thing.
  */
-class Thing { //implements ThingInterface {
+class Thing implements ThingInterface {
 
   /**
    * The Web Thing.
@@ -542,7 +543,8 @@ class Thing { //implements ThingInterface {
       $this->subscribers->detach($ws);
     }
 
-    foreach($this->available_events) {
+    foreach($this->available_events as $name) {
+      $this->removeEventSubscriber($name, $ws);
     }
   }
 
@@ -567,7 +569,7 @@ class Thing { //implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function actionNotify($action) {
+  public function actionNotify(Action $action) {
     $message = json_encode([
       'messageType' => 'actionStatus',
       'data' => $action->asActionDescription(),
@@ -582,7 +584,7 @@ class Thing { //implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function eventNotify($event) {
+  public function eventNotify(Event $event) {
     if(!in_array($event, $this->available_events)) {
       return;
     }
