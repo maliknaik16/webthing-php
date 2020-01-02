@@ -246,7 +246,11 @@ class Thing { //implements ThingInterface {
     ]);
 
     // TODO: SEND TO THE WEBSOCKET
-    $this->webSocketHandler->notifyChange($message);
+    //$this->webSocketHandler->notifyChange($message);
+
+    foreach($this->subscribers as $subscriber) {
+      $subscriber->send($message);
+    }
   }
 
   /**
@@ -499,7 +503,97 @@ class Thing { //implements ThingInterface {
 
     $action->cancel();
     // TODO: Find the solution to remove specific element from the array.
-    $this->actions[$action_name]->remove($action);
-    return true;
+
+    if(($key = array_search($action, $this->actions[$action_name], true)) !== FALSE) {
+      unset($this->actions[$action_name][$key]);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addAvailableAction($name, $metadata, $cls) {
+    if(!$metadata) {
+      $metadata = [];
+    }
+
+    $this->available_actions[$name] = [
+      'metadata' => $metadata,
+      'class' => $cls,
+    ];
+
+    $this->actions[$name] = [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addSubscriber($ws) {
+    $this->subscribers->add($ws);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeSubscriber($ws) {
+    if($this->subscribers->contains($ws)) {
+      $this->subscribers->detach($ws);
+    }
+
+    foreach($this->available_events) {
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addEventSubscriber($name, $ws) {
+    if(in_array($name, $this->available_events)) {
+      $this->available_events[$name]['subscribers'][] = $ws;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeEventSubscriber($name, $ws) {
+    if(in_array($name, $this->available_events) && ($key = array_search($ws, $this->available_events[$name]['subscribers'])) !== FALSE) {
+      unset($this->available_events[$name]['subscribers'][$key]);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function actionNotify($action) {
+    $message = json_encode([
+      'messageType' => 'actionStatus',
+      'data' => $action->asActionDescription(),
+    ]);
+
+    // TODO: RECHECK THE FOLLOWING
+    foreach($this->subscribers as $subscriber) {
+      $subscriber->send($message);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function eventNotify($event) {
+    if(!in_array($event, $this->available_events)) {
+      return;
+    }
+
+    $message = json_encode([
+      'messageType' => 'event',
+      'data' => $event->asEventDescription(),
+    ]);
+
+    foreach($this->available_events[$event->getName()]['subscribers'] as $subscriber) {
+      $subscriber->send($message);
+    }
   }
 }
