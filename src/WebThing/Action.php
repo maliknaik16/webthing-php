@@ -78,7 +78,7 @@ class Action implements ActionInterface {
   /**
    * Initialize the object.
    */
-  public function __construct(Thing $thing, $id, $name, $input) {
+  public function __construct(ThingInterface $thing, $id, $name, $input) {
     $this->id = $id;
     $this->thing = $thing;
     $this->name = $name;

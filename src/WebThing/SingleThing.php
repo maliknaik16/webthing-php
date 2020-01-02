@@ -22,7 +22,7 @@ class SingleThing {
    *
    * @param $thing a thing to store.
    */
-  public function __construct(Thing $thing) {
+  public function __construct(ThingInterface $thing) {
     $this->thing = $thing;
   }
 

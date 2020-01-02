@@ -237,7 +237,7 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function propertyNotify(Property $property) {
+  public function propertyNotify(PropertyInterface $property) {
     $message = json_encode([
       'messageType' => 'propertyStatus',
       'data' => [
@@ -350,7 +350,7 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function addProperty(Property $property) {
+  public function addProperty(PropertyInterface $property) {
     $property->setHrefPrefix($this->href_prefix);
     $this->properties[$property->name] = $property;
   }
@@ -358,7 +358,7 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function removeProperty(Property $property) {
+  public function removeProperty(PropertyInterface $property) {
     if(in_array($property->name, $this->properties)) {
       unset($this->properties[$property->name]);
     }
@@ -443,7 +443,7 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function addEvent(Event $event) {
+  public function addEvent(EventInterface $event) {
     $this->events[] = $event;
     $this->eventNotify($event);
   }
@@ -568,7 +568,7 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function actionNotify(Action $action) {
+  public function actionNotify(ActionInterface $action) {
     $message = json_encode([
       'messageType' => 'actionStatus',
       'data' => $action->asActionDescription(),
@@ -583,7 +583,7 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function eventNotify(Event $event) {
+  public function eventNotify(EventInterface $event) {
     if(!in_array($event, $this->available_events)) {
       return;
     }

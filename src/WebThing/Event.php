@@ -44,7 +44,7 @@ class Event implements EventInterface {
   /**
    * Initialize the object.
    */
-  public function __construct(Thing $thing, $name, $data = null) {
+  public function __construct(ThingInterface $thing, $name, $data = null) {
     $this->thing = $thing;
     $this->name = $name;
     $this->data = $data;

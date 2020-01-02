@@ -30,7 +30,7 @@ class MultipleThings {
    * @param $name
    *  the mDNS server name.
    */
-  public function __construct(Thing $things, $name) {
+  public function __construct(ThingInterface $things, $name) {
     $this->things = $things;
     $this->name = $name;
   }
