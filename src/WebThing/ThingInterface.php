@@ -72,12 +72,12 @@ interface ThingInterface {
   /**
    * Add a property to this thing.
    */
-  public function addProperty($property);
+  public function addProperty(Property $property);
 
   /**
    * Remove a property from this thing.
    */
-  public function removeProperty($property);
+  public function removeProperty(Property $property);
 
   /**
    * Find a property by name.
@@ -112,7 +112,7 @@ interface ThingInterface {
   /**
    * Add a new event and notify subscribers.
    */
-  public function addEvent($event);
+  public function addEvent(Event $event);
 
   /**
    * Add an available event.
@@ -157,15 +157,15 @@ interface ThingInterface {
   /**
    * Notify all subscribers of a property change.
    */
-  public function propertyNotify($property);
+  public function propertyNotify(Property $property);
 
   /**
    * Notify all subscribers of an action status change.
    */
-  public function actionNotify($action);
+  public function actionNotify(Action $action);
 
   /**
    * Notify all subscribers of an event.
    */
-  public function eventNotify($event);
+  public function eventNotify(Event $event);
 }
