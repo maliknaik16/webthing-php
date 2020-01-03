@@ -137,6 +137,7 @@ class Server {
       echo 'Error: ' . $e->getMessage() . PHP_EOL;
     }
 
+    $this->routes();
   }
 
   /**
