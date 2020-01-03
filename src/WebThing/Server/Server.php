@@ -1,7 +1,6 @@
 <?php
 
 namespace WebThing\Server;
-error_reporting(E_ALL);
 
 /**
  * @file
@@ -18,6 +17,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Ratchet\Server\IoServer;
 use Ratchet\WebSocket\WsServer;
 use Ratchet\Http\HttpServer;
+
+use WebThing\ThingsInterface;
+
+
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
 
 /**
  * Server to represent a Web Thing over HTTP.
@@ -93,21 +100,34 @@ class Server {
   protected $path;
 
   /**
+   * Includes all the routes associated with the Web Thing Server.
+   *
+   * @var \Symfony\Component\Routing\RouteCollection;
+   */
+  protected $routes;
+
+  /**
    * Initialize the sockets and EventLoop.
    */
   public function __construct($address = '127.0.0.1', $httpPort = 80, $wsPort = 8080) {
     $this->loop = Factory::create();
     $this->httpPort = $httpPort;
     $this->wsPort = $wsPort;
+    $this->routes = new RouteCollection();
 
-    $this->httpSocketServer = new SocketServer($address . ':' . $httpPort, $this->loop);
-    $this->wsSocketServer = new SocketServer($address . ':' . $wsPort, $this->loop);
+    try {
+      $this->httpSocketServer = new SocketServer($address . ':' . $httpPort, $this->loop);
+      $this->wsSocketServer = new SocketServer($address . ':' . $wsPort, $this->loop);
 
-    $this->httpServer = new ReactHttpServer(function(ServerRequestInterface $request) {
-      return $this->httpRequestHandler($request);
-    });
+      $this->httpServer = new ReactHttpServer(function(ServerRequestInterface $request) {
+        return $this->httpRequestHandler($request);
+      });
 
-    $this->wsHandler = new WebSocketHandler();
+      $this->wsHandler = new WebSocketHandler();
+    }catch(\Exception $e) {
+      echo 'Error: ' . $e->getMessage() . PHP_EOL;
+    }
+
   }
 
   /**
@@ -119,6 +139,7 @@ class Server {
     $this->path = $request->getUri()->getPath();
 
     if($method == 'GET') {
+      var_dump($this->match($this->path));
       return $this->get($request);
     }else if($method == 'POST') {
       return $this->post($request);
@@ -130,25 +151,141 @@ class Server {
   }
 
   /**
+   * The controller array.
+   */
+  private function controller($c_str) {
+    return [
+      '_controller' => $c_str,
+    ];
+  }
+
+  /**
+   * Defines all the routes.
+   */
+  public function routes() {
+
+    // The Thing routes.
+    $things_handler = new Route('/{slash}', $this->controller('thingsHandler'), [
+      'slash' => '\/?'
+    ]);
+
+    $thing_handler = new Route('/{thing_id}{slash}',
+      $this->controller('thingHandler'), [
+      'thing_id' => '\d+',
+      'slash' => "\/?"
+    ]);
+
+    // The Property routes.
+    $properties_handler = new Route('/{thing_id}/properties{slash}',
+      $this->controller('propertiesHandler'), [
+        'thing_id' => '\d+',
+        'slash' => "\/?"
+    ]);
+
+    $property_handler = new Route('/{thing_id}/properties/{property_name}{slash}',
+      $this->controller('propertyHandler'), [
+        'thing_id' => '\d+',
+        'property_name' => '[^/]+',
+        'slash' => "\/?"
+    ]);
+
+    // The action routes.
+    $actions_handler = new Route('/{thing_id}/actions{slash}',
+      $this->controller('actionsHandler'), [
+        'thing_id' => '\d+',
+        'slash' => "\/?"
+    ]);
+
+    $action_handler = new Route('/{thing_id}/actions/{action_name}{slash}',
+      $this->controller('actionHandler'), [
+      'thing_id' => '\d+',
+      'action_name' => '[^/]+',
+      'slash' => "\/?"
+    ]);
+
+    $action_id_handler = new Route('/{thing_id}/actions/{action_name}/{action_id}{slash}',
+      $this->controller('actionIDHandler'), [
+        'thing_id' => '\d+',
+        'action_name' => '[^/]+',
+        'action_id' => '[^/]+',
+        'slash' => "\/?"
+    ]);
+
+    // The event routes.
+    $events_handler = new Route('/{thing_id}/events{slash}',
+      $this->controller('eventsHandler'), [
+        'thing_id' => '\d+',
+        'slash' => "\/?"
+    ]);
+
+    $event_handler = new Route('/{thing_id}/events/{event_name}{slash}',
+      $this->controller('eventHandler'), [
+        'thing_id' => '\d+',
+        'event_name' => '[^/]+',
+        'slash' => "\/?"
+    ]);
+
+
+    $this->routes->add("things_handler", $things_handler);
+    $this->routes->add("thing_handler", $thing_handler);
+    $this->routes->add("properties_handler", $properties_handler);
+    $this->routes->add("property_handler", $property_handler);
+    $this->routes->add("actions_handler", $actions_handler);
+    $this->routes->add("action_handler", $action_handler);
+    $this->routes->add("action_id_handler", $action_id_handler);
+    $this->routes->add("events_handler", $events_handler);
+    $this->routes->add("event_handler", $event_handler);
+  }
+
+  /**
+   * The route match function.
+   */
+  public function match($path) {
+    $context = new RequestContext("/");
+    $matcher = new UrlMatcher($this->routes, $context);
+
+    return $matcher->match($path);
+  }
+
+  /**
    * Start the HTTP Server.
    */
   public function startHttpServer() {
-    $this->httpServer->listen($this->httpSocketServer);
+    try {
+      if($this->httpServer == null) {
+        // TODO: Change the message later.
+        throw new \Exception('The HTTP Server is not initialized.');
+      }else{
+        $this->httpServer->listen($this->httpSocketServer);
+      }
+    }catch(\Exception $e) {
+      echo 'Error: ' . $e->getMessage() . PHP_EOL;
+    }
   }
 
   /**
    * Start the WebSocket Server
    */
   public function startWsServer() {
-    $webSocket = new IoServer(
-      new HttpServer(
-        new WsServer(
-          $this->wsHandler
-        )
-      ),
-      $this->wsSocketServer,
-      $this->loop
-    );
+    try {
+      if($this->wsHandler == null || $this->wsSocketServer == null) {
+        // TODO: Change the message later.
+        throw new \Exception('The Socket is not initialized yet.');
+      }else{
+        $webSocket = new IoServer(
+          new HttpServer(
+            new WsServer(
+              $this->wsHandler
+            )
+          ),
+          $this->wsSocketServer,
+          $this->loop
+        );
+      }
+    }catch(\Exception $e) {
+      echo 'Error: ' . $e->getMessage() . PHP_EOL;
+    }
+
   }
 
   /**
