@@ -19,7 +19,8 @@ use Ratchet\WebSocket\WsServer;
 use Ratchet\Http\HttpServer;
 
 use WebThing\ThingsInterface;
-
+use WebThing\SingleThing;
+use WebThing\MultipleThings;
 
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -30,6 +31,14 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
  * Server to represent a Web Thing over HTTP.
  */
 class Server {
+
+  /**
+   * Things managed by this server. It should be of type SingleThing
+   * or MultipleThings.
+   *
+   * @var ThingsInterface
+   */
+  protected $things;
 
   /**
    * The Socket Server.
@@ -109,7 +118,7 @@ class Server {
   /**
    * Initialize the sockets and EventLoop.
    */
-  public function __construct($address = '127.0.0.1', $httpPort = 80, $wsPort = 8080) {
+  public function __construct(ThingsInterface $things, $address = '127.0.0.1', $httpPort = 80, $wsPort = 8080) {
     $this->loop = Factory::create();
     $this->httpPort = $httpPort;
     $this->wsPort = $wsPort;
@@ -164,69 +173,120 @@ class Server {
    */
   public function routes() {
 
-    // The Thing routes.
-    $things_handler = new Route('/{slash}', $this->controller('thingsHandler'), [
-      'slash' => '\/?'
-    ]);
+    if($this->things instanceof MultipleThings) {
+      // The Thing routes.
+      $things_handler = new Route('/{slash}', $this->controller('thingsHandler'), [
+        'slash' => '\/?'
+      ]);
 
-    $thing_handler = new Route('/{thing_id}{slash}',
-      $this->controller('thingHandler'), [
-      'thing_id' => '\d+',
-      'slash' => "\/?"
-    ]);
-
-    // The Property routes.
-    $properties_handler = new Route('/{thing_id}/properties{slash}',
-      $this->controller('propertiesHandler'), [
+      $thing_handler = new Route('/{thing_id}{slash}',
+        $this->controller('thingHandler'), [
         'thing_id' => '\d+',
         'slash' => "\/?"
-    ]);
+      ]);
 
-    $property_handler = new Route('/{thing_id}/properties/{property_name}{slash}',
-      $this->controller('propertyHandler'), [
-        'thing_id' => '\d+',
-        'property_name' => '[^/]+',
-        'slash' => "\/?"
-    ]);
+      // The Property routes.
+      $properties_handler = new Route('/{thing_id}/properties{slash}',
+        $this->controller('propertiesHandler'), [
+          'thing_id' => '\d+',
+          'slash' => "\/?"
+      ]);
 
-    // The action routes.
-    $actions_handler = new Route('/{thing_id}/actions{slash}',
-      $this->controller('actionsHandler'), [
-        'thing_id' => '\d+',
-        'slash' => "\/?"
-    ]);
+      $property_handler = new Route('/{thing_id}/properties/{property_name}{slash}',
+        $this->controller('propertyHandler'), [
+          'thing_id' => '\d+',
+          'property_name' => '[^/]+',
+          'slash' => "\/?"
+      ]);
 
-    $action_handler = new Route('/{thing_id}/actions/{action_name}{slash}',
-      $this->controller('actionHandler'), [
-      'thing_id' => '\d+',
-      'action_name' => '[^/]+',
-      'slash' => "\/?"
-    ]);
+      // The action routes.
+      $actions_handler = new Route('/{thing_id}/actions{slash}',
+        $this->controller('actionsHandler'), [
+          'thing_id' => '\d+',
+          'slash' => "\/?"
+      ]);
 
-    $action_id_handler = new Route('/{thing_id}/actions/{action_name}/{action_id}{slash}',
-      $this->controller('actionIDHandler'), [
+      $action_handler = new Route('/{thing_id}/actions/{action_name}{slash}',
+        $this->controller('actionHandler'), [
         'thing_id' => '\d+',
         'action_name' => '[^/]+',
-        'action_id' => '[^/]+',
         'slash' => "\/?"
-    ]);
+      ]);
 
-    // The event routes.
-    $events_handler = new Route('/{thing_id}/events{slash}',
-      $this->controller('eventsHandler'), [
-        'thing_id' => '\d+',
+      $action_id_handler = new Route('/{thing_id}/actions/{action_name}/{action_id}{slash}',
+        $this->controller('actionIDHandler'), [
+          'thing_id' => '\d+',
+          'action_name' => '[^/]+',
+          'action_id' => '[^/]+',
+          'slash' => "\/?"
+      ]);
+
+      // The event routes.
+      $events_handler = new Route('/{thing_id}/events{slash}',
+        $this->controller('eventsHandler'), [
+          'thing_id' => '\d+',
+          'slash' => "\/?"
+      ]);
+
+      $event_handler = new Route('/{thing_id}/events/{event_name}{slash}',
+        $this->controller('eventHandler'), [
+          'thing_id' => '\d+',
+          'event_name' => '[^/]+',
+          'slash' => "\/?"
+      ]);
+    }else{
+      // The Thing routes.
+      $thing_handler = new Route('/{slash}', $this->controller('thingHandler'), [
+        'slash' => '\/?'
+      ]);
+
+      // The Property routes.
+      $properties_handler = new Route('/properties{slash}',
+        $this->controller('propertiesHandler'), [
+          'slash' => "\/?"
+      ]);
+
+      $property_handler = new Route('/properties/{property_name}{slash}',
+        $this->controller('propertyHandler'), [
+          'property_name' => '[^/]+',
+          'slash' => "\/?"
+      ]);
+
+      // The action routes.
+      $actions_handler = new Route('/actions{slash}',
+        $this->controller('actionsHandler'), [
+          'slash' => "\/?"
+      ]);
+
+      $action_handler = new Route('/actions/{action_name}{slash}',
+        $this->controller('actionHandler'), [
+        'action_name' => '[^/]+',
         'slash' => "\/?"
-    ]);
+      ]);
 
-    $event_handler = new Route('/{thing_id}/events/{event_name}{slash}',
-      $this->controller('eventHandler'), [
-        'thing_id' => '\d+',
-        'event_name' => '[^/]+',
-        'slash' => "\/?"
-    ]);
+      $action_id_handler = new Route('/actions/{action_name}/{action_id}{slash}',
+        $this->controller('actionIDHandler'), [
+          'action_name' => '[^/]+',
+          'action_id' => '[^/]+',
+          'slash' => "\/?"
+      ]);
 
+      // The event routes.
+      $events_handler = new Route('/events{slash}',
+        $this->controller('eventsHandler'), [
+          'slash' => "\/?"
+      ]);
 
-    $this->routes->add("things_handler", $things_handler);
+      $event_handler = new Route('/events/{event_name}{slash}',
+        $this->controller('eventHandler'), [
+          'event_name' => '[^/]+',
+          'slash' => "\/?"
+      ]);
+    }
+
+    if(isset($things_handler)) {
+      $this->routes->add("things_handler", $things_handler);
+    }
     $this->routes->add("thing_handler", $thing_handler);
     $this->routes->add("properties_handler", $properties_handler);
     $this->routes->add("property_handler", $property_handler);
