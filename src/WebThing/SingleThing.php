@@ -10,7 +10,7 @@ namespace WebThing;
 /**
  * A container for single thing.
  */
-class SingleThing {
+class SingleThing implements ThingsInterface {
 
   /**
    * @var WebThing\Thing
@@ -27,9 +27,9 @@ class SingleThing {
   }
 
   /**
-   * Get the thing at the given index.
+   * Get the thing.
    */
-  public function getThing() {
+  public function getThing($index = '') {
     return $this->thing;
   }
 

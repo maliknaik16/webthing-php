@@ -10,7 +10,7 @@ namespace WebThing;
 /**
  * A container for multiple things.
  */
-class MultipleThings {
+class MultipleThings implements ThingsInterface {
 
   /**
    * @var WebThing\Thing[]
