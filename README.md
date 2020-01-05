@@ -7,3 +7,15 @@ Web of Things PHP
 [![Software License](https://img.shields.io/badge/license-MPL--2.0-green?style=flat-square)](https://github.com/maliknaik16/webthing-php/blob/master/LICENSE.txt)
 
 Implementation of an HTTP [Web Thing](https://iot.mozilla.org/wot/). This library is compatible with PHP 5.4+.
+
+Installation
+---
+The ``webthing`` can be installed using ``composer`` using the following command:
+
+```bash
+composer require webthing/webthing
+```
+
+License
+---
+Mozilla Public License Version 2.0
