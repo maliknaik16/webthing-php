@@ -19,8 +19,10 @@
     }
   },
   "require": {
-    "cboden/ratchet": "*",
-    "ramsey/uuid": "*",
-    "react/http": "^0.8.5"
+    "cboden/ratchet": "^0.4.1",
+    "ramsey/uuid": "^3.9.2",
+    "react/http": "^0.8.5",
+    "justinrainbow/json-schema": "^5.2.9",
+    "myclabs/deep-copy": "^1.9.4"
   }
 }
