@@ -1,8 +1,9 @@
 {
-  "name": "maliknaik/webthing-php",
+  "name": "webthing/webthing",
   "type": "library",
   "description": "A PHP Web Thing Server implementation.",
   "keywords": ["webthing", "php", "mozilla"],
+  "license": "MPL-2.0",
   "homepage": "https://github.com/maliknaik16/webthing-php",
   "authors": [
     {
@@ -19,6 +20,7 @@
   },
   "require": {
     "cboden/ratchet": "*",
-    "ramsey/uuid": "*"
+    "ramsey/uuid": "*",
+    "react/http": "^0.8.5"
   }
 }
