@@ -7,8 +7,6 @@ namespace WebThing\Server\Handlers;
  * PropertiesHandler class implementation.
  */
 
-use WebThing\Thing;
-
 /**
  * Handle a request to '/properties'.
  */
