@@ -46,6 +46,6 @@ class SingleThing implements ThingsInterface {
    * Get the mDNS server name.
    */
   public function getName() {
-    return $this->thing->title;
+    return $this->thing->getTitle();
   }
 }
