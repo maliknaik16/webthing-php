@@ -18,11 +18,15 @@
       "WebThing\\": "src/"
     }
   },
+  "config": {
+    "optimize-autoloader": true
+  },
   "require": {
     "cboden/ratchet": "^0.4.1",
     "ramsey/uuid": "^3.9.2",
     "react/http": "^0.8.5",
     "justinrainbow/json-schema": "^5.2.9",
-    "myclabs/deep-copy": "^1.9.4"
+    "myclabs/deep-copy": "^1.9.4",
+    "malik/crimson": "^1.0.0"
   }
 }
