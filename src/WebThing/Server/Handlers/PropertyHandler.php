@@ -4,7 +4,7 @@ namespace WebThing\Server\Handlers;
 
 /**
  * @file
- * PropertyHandler class implementation.
+ * Contains PropertyHandler class implementation.
  */
 
 /**
@@ -30,10 +30,11 @@ class PropertyHandler extends BaseHandler {
    * {@inheritdoc}
    */
   public function initialize() {
+    parent::initialize();
     $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
 
     $this->thing = $this->getThing($thing_id);
-    $this->property_name = isset($this->getRouteArgs()['property_name']) ?: NULL;
+    $this->property_name = isset($this->getRouteArgs()['property_name']) ? $this->getRouteArgs()['property_name'] : NULL;
   }
 
   /**
@@ -48,8 +49,8 @@ class PropertyHandler extends BaseHandler {
 
     if($this->thing->hasProperty($this->property_name)) {
       $this->setContentType('application/json');
-      $this->write(json_decode([
-        $this->property_name: $this->thing->getProperty($this->property_name),
+      $this->write(json_encode([
+        $this->property_name => $this->thing->getProperty($this->property_name),
       ]));
     }else{
       $this->sendError(404);
@@ -87,8 +88,8 @@ class PropertyHandler extends BaseHandler {
       }
 
       $this->setContentType('application/json');
-      $this->write(json_decode([
-        $this->property_name: $this->thing->getProperty($this->property_name),
+      $this->write(json_encode([
+        $this->property_name => $this->thing->getProperty($this->property_name),
       ]));
 
     } else {
