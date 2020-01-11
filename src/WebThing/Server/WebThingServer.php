@@ -11,15 +11,57 @@ use WebThing\SingleThing;
 use WebThing\MultipleThings;
 use WebThing\ThingsInterface;
 
+use React\EventLoop\Factory;
+
+use Crimson\App;
+use Crimson\HttpServer;
+
 /**
  * Server to represent a Web Thing over HTTP.
  */
-class WebThingServer extends Server {
+class WebThingServer {
+
+
+  /**
+   * Things managed by this server. It should be of type SingleThing
+   * or MultipleThings.
+   *
+   * @var WebThing\ThingsInterface
+   */
+  protected $things;
+
+  /**
+   * The Name of the thing.
+   *
+   * @var string
+   */
+  protected $name;
+
+  /**
+   * The HTTP port.
+   *
+   * @var int
+   */
+  protected $httpPort;
+
+  /**
+   * The Web Socket port.
+   *
+   * @var int
+   */
+  protected $wsPort;
+
+  /**
+   * The hostname.
+   *
+   * @var string
+   */
+  protected $hostname;
 
   /**
    * List of additional routes to add to the server.
    *
-   * @var string
+   * @var array|null
    */
   protected $additional_routes;
 
@@ -31,13 +73,30 @@ class WebThingServer extends Server {
   protected $base_path;
 
   /**
+   * An array of handlers.
+   *
+   * @var array
+   */
+  protected $handlers;
+
+  /**
+   * HTTP Server.
+   *
+   * @var Crimson\HttpServer.
+   */
+  protected $server;
+
+  /**
    * Initialize the Web Thing Server.
    */
-  public function __construct(ThingsInterface $things, $address = '127.0.0.1', $httpPort = 80, $wsPort = 8080, $additional_routes = null, $base_path = '') {
-    parent::__construct($things, $address, $httpPort, $wsPort);
-
+  public function __construct($things, $hostname = '127.0.0.1', $httpPort = 80, $wsPort = 8080, $tls_options = [], $additional_routes = NULL, $base_path = '', $loop = NULL) {
+    $this->things = $things;
+    $this->name = $things->getName();
+    $this->hostname = $hostname;
+    $this->httpPort = $httpPort;
+    $this->wsPort = $wsPort;
     $this->additional_routes = $additional_routes;
-    $this->base_path = $base_path;
+    $this->base_path = rtrim($base_path, '/');
 
     // TODO: Add more hosts
     $system_hostname = strtolower(gethostname());
@@ -68,26 +127,150 @@ class WebThingServer extends Server {
     }
 
     if($this->things instanceof MultipleThings) {
+      foreach(array_values($this->things->getThings()) as $i => $thing) {
+        $thing->setHrefPrefix(sprintf("%s/%s", $this->base_path, $i));
+      }
       $this->multipleThings();
-    }else{
+    } elseif($this->things instanceof SingleThing) {
+      $this->things->getThing()->setHrefPrefix($this->base_path);
       $this->singleThing();
     }
 
+    $app = new App($this->handlers);
+
+    if(!empty($additional_routes)) {
+      $app->addHandlers($additional_routes);
+    }
+
+    if($loop == NULL) {
+      $eventLoop = Factory::create();
+    }else{
+      $eventLoop = $loop;
+    }
+    $this->server = new HttpServer($app, $tls_options, $hostname, $httpPort, $eventLoop);
   }
 
   /**
    * Handle the requests for multiple things.
    */
   public function multipleThings() {
+    $class_args = [
+      'things' => $this->things,
+      'hosts' => $this->hosts
+    ];
+
+    $this->handlers = [
+      [
+        '\/?',
+        'WebThing\Server\Handlers\ThingsHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/?',
+        'WebThing\Server\Handlers\ThingHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/properties\/?',
+        'WebThing\Server\Handlers\PropertiesHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/properties\/' .
+        '(?P<property_name>[^\/]+)\/?',
+        'WebThing\Server\Handlers\PropertyHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/actions\/?',
+        'WebThing\Server\Handlers\ActionsHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/actions\/(?P<action_name>[^\/]+)\/?',
+        'WebThing\Server\Handlers\ActionHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/actions\/' .
+        '(?P<action_name>[^\/]+)\/(?P<action_id>[^\/]+)\/?',
+        'WebThing\Server\Handlers\ActionIDHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/events\/?',
+        'WebThing\Server\Handlers\EventsHandler',
+        $class_args,
+      ],
+      [
+        '\/(?P<thing_id>\d+)\/events\/(?P<event_name>[^\/]+)\/?',
+        'WebThing\Server\Handlers\EventHandler',
+        $class_args,
+      ],
+    ];
   }
 
   /**
    * Handle the requests for single thing.
    */
   public function singleThing() {
+
+    $class_args = [
+      'things' => $this->things,
+      'hosts' => $this->hosts
+    ];
+
+    $this->handlers = [
+      [
+        '\/?',
+        'WebThing\Server\Handlers\ThingHandler',
+        $class_args,
+      ],
+      [
+        '\/properties\/?',
+        'WebThing\Server\Handlers\PropertiesHandler',
+        $class_args,
+      ],
+      [
+        '\/properties\/' .
+        '(?P<property_name>[^\/]+)\/?',
+        'WebThing\Server\Handlers\PropertyHandler',
+        $class_args,
+      ],
+      [
+        '\/actions\/?',
+        'WebThing\Server\Handlers\ActionsHandler',
+        $class_args,
+      ],
+      [
+        '\/actions\/(?P<action_name>[^\/]+)\/?',
+        'WebThing\Server\Handlers\ActionHandler',
+        $class_args,
+      ],
+      [
+        '\/actions\/' .
+        '(?P<action_name>[^\/]+)\/(?P<action_id>[^\/]+)\/?',
+        'WebThing\Server\Handlers\ActionIDHandler',
+        $class_args,
+      ],
+      [
+        '\/events\/?',
+        'WebThing\Server\Handlers\EventsHandler',
+        $class_args,
+      ],
+      [
+        '\/events\/(?P<event_name>[^\/]+)\/?',
+        'WebThing\Server\Handlers\EventHandler',
+        $class_args,
+      ],
+    ];
   }
 
-  public function testData() {
-    return $this->hosts;
+  public function start() {
+    $this->server->start();
+  }
+
+  public function stop() {
+    $this->server->stop();
   }
 }
