@@ -7,7 +7,6 @@ namespace WebThing;
  * The Thing class implementation.
  */
 
-use WebThing\Server\WebSocketHandler;
 use JsonSchema\Validator;
 
 /**
@@ -114,11 +113,6 @@ class Thing implements ThingInterface {
   protected $ui_href;
 
   /**
-   * The WebSocket handler class.
-   */
-  protected $webSocketHandler;
-
-  /**
    * Initialize the Thing.
    */
   public function __construct($id, $title, $type = [], $description = '') {
@@ -135,8 +129,6 @@ class Thing implements ThingInterface {
     $this->subscribers = new \SplObjectStorage;
     $this->href_prefix = '';
     $this->ui_href = null;
-
-    $this->webSocketHandler = new WebSocketHandler;
   }
 
   /**
@@ -145,8 +137,8 @@ class Thing implements ThingInterface {
   public function asThingDescription() {
     $this->thing = [
       'id' => $this->id,
-      '@context' => $this->context,
       'title' => $this->title,
+      '@context' => $this->context,
       'properties' => $this->getPropertyDescriptions(),
       'actions' => [],
       'events' => [],
@@ -264,8 +256,10 @@ class Thing implements ThingInterface {
     }
 
     // TODO: CONFIRM THIS IMPLEMENTATION
-    foreach($this->actions as $action_name => $action) {
-      $action->setHrefPrefix($prefix);
+    foreach($this->actions as $action_name => $value) {
+      foreach($this->actions[$action_name] as $action) {
+        $action->setHrefPrefix($prefix);
+      }
     }
   }
 
@@ -319,10 +313,15 @@ class Thing implements ThingInterface {
 
     if(empty($action_name)) {
       // TODO: Figure out the action structure
-      foreach($this->actions as $name => $action) {
-        $descriptions[] = $action->asActionDescription();
+      foreach($this->actions as $name => $value) {
+        foreach($this->actions[$name] as $action) {
+          array_push($descriptions, $action->asActionDescription());
+        }
       }
     }else if(in_array($action_name, $this->actions)) {
+      foreach($this->actions[$name] as $action) {
+        array_push($descriptions, $action->asActionDescription());
+      }
     }
     return $descriptions;
   }
@@ -334,12 +333,14 @@ class Thing implements ThingInterface {
     $descriptions = [];
     if(empty($event_name)) {
       foreach($this->events as $event) {
-        $descriptions[] = $event->asEventDescription();
+        array_push($descriptions, $event->asEventDescription());
+        //$descriptions[] = $event->asEventDescription();
       }
     }else{
       foreach($this->events as $event) {
         if($event->getName() == $event_name) {
-          $descriptions[] = $event->asEventDescription();
+          array_push($descriptions, $event->asEventDescription());
+          //$descriptions[] = $event->asEventDescription();
         }
       }
     }
@@ -352,15 +353,15 @@ class Thing implements ThingInterface {
    */
   public function addProperty(PropertyInterface $property) {
     $property->setHrefPrefix($this->href_prefix);
-    $this->properties[$property->name] = $property;
+    $this->properties[$property->getName()] = $property;
   }
 
   /**
    * {@inheritdoc}
    */
   public function removeProperty(PropertyInterface $property) {
-    if(in_array($property->name, $this->properties)) {
-      unset($this->properties[$property->name]);
+    if(in_array($property->getName(), $this->properties)) {
+      unset($this->properties[$property->getName()]);
     }
   }
 
@@ -407,7 +408,7 @@ class Thing implements ThingInterface {
    * {@inheritdoc}
    */
   public function hasProperty($property_name) {
-    return in_array($property_name, $this->properties);
+    return array_key_exists($property_name, $this->properties);
   }
 
   /**
@@ -465,11 +466,11 @@ class Thing implements ThingInterface {
   /**
    * {@inheritdoc}
    */
-  public function performAction($action_name, $input = null) {
+  public function performAction($action_name, $input = NULL) {
 
     // TODO: Re check this class again.
     if(!in_array($action_name, $this->available_actions)) {
-      return null;
+      return NULL;
     }
 
     $action_type = $this->available_actions[$action_name];
@@ -479,14 +480,14 @@ class Thing implements ThingInterface {
       $validator->validate($input, $action_type['metadata']['input']);
 
       if(!$validator->isValid()) {
-        return null;
+        return NULL;
       }
     }
 
     $action = $action_type['class']($input);
     $action->setHrefPrefix($this->href_prefix);
-    $this->notifyAction($action);
-    $this->action[$action_name] = $action;
+    $this->actionNotify($action);
+    array_push($this->actions[$action_name], $action);
 
     return $action;
   }
