@@ -71,4 +71,11 @@ class Value {
       $this->emitter->emit('valueUpdate', [$new_value]);
     }
   }
+
+  /**
+   * Returns the Event emitter.
+   */
+  public function getEventEmitter() {
+    return $this->emitter;
+  }
 }
