@@ -16,7 +16,7 @@ class ThingHandler extends BaseHandler {
    * Handle a GET request.
    */
   public function get() {
-    $thing_id = $this->getRouteArgs()['thing_id'] ?: '0';
+    $thing_id = array_key_exists('thing_id', $this->getRouteArgs()) ? $this->getRouteArgs()['thing_id'] : '0';
     $thing = $this->getThing($thing_id);
 
     if($thing == NULL) {
