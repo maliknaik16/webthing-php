@@ -161,8 +161,10 @@ class Thing implements ThingInterface {
     foreach($this->available_actions as $name => $action) {
       $this->thing['actions'][$name] = $action['metadata'];
       $this->thing['actions'][$name]['links'] = [
-        'rel' => 'action',
-        'href' => sprintf("%s/actions/%s", $this->href_prefix, $name),
+        [
+          'rel' => 'action',
+          'href' => sprintf("%s/actions/%s", $this->href_prefix, $name),
+        ],
       ];
     }
 
