@@ -182,7 +182,7 @@ class Thing implements ThingInterface {
       ];
     }
 
-    if(empty($this->description)) {
+    if(!empty($this->description)) {
       $this->thing['description'] = $this->description;
     }
 
@@ -200,9 +200,7 @@ class Thing implements ThingInterface {
     $property_descriptions = [];
 
     foreach($this->properties as $k => $v) {
-      $property_descriptions[] = [
-        $k => $v->asPropertyDescription(),
-      ];
+      $property_descriptions[$k] = $v->asPropertyDescription();
     }
 
     return $property_descriptions;
