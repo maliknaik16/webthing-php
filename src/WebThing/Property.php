@@ -85,8 +85,10 @@ class Property implements PropertyInterface {
       throw new \Exception("Read-only property '" . $this->name . "'.");
     }
 
-    $vvalue = $value->get();
-    $validator->validate($vvalue, $this->metadata);
+    //var_dump($value);
+    //$vvalue = $value->get();
+    //echo 'AFTER VALIDATE VALUE';
+    $validator->validate($value, $this->metadata);
 
     if(!$validator->isValid()) {
       throw new \Exception("Invalid property value for '" . $this->name . "'.");

@@ -31,7 +31,7 @@ class PropertyHandler extends BaseHandler {
    */
   public function initialize() {
     parent::initialize();
-    $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
+    $thing_id = array_key_exists('thing_id', $this->getRouteArgs()) ? $this->getRouteArgs()['thing_id'] : '0';
 
     $this->thing = $this->getThing($thing_id);
     $this->property_name = isset($this->getRouteArgs()['property_name']) ? $this->getRouteArgs()['property_name'] : NULL;
@@ -67,14 +67,14 @@ class PropertyHandler extends BaseHandler {
       return;
     }
 
-    $args = json_decode($this->getRequest()->getParsedBody());
+    $args = json_decode($this->getRequest()->getBody()->getContents(), true);
 
     if($args === NULL && json_last_error() !== JSON_ERROR_NONE) {
       $this->setStatus(400);
       return;
     }
 
-    if(!in_array($this->property_name, $args)) {
+    if(!array_key_exists($this->property_name, $args)) {
       $this->setStatus(400);
       return;
     }
@@ -86,7 +86,7 @@ class PropertyHandler extends BaseHandler {
         $this->setStatus(400);
         return;
       }
-
+      $this->setStatus(200);
       $this->setContentType('application/json');
       $this->write(json_encode([
         $this->property_name => $this->thing->getProperty($this->property_name),

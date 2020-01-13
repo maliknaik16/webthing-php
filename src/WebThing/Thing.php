@@ -396,11 +396,12 @@ class Thing implements ThingInterface {
    */
   public function getProperties() {
 
-    // TODO: RECHECK THE FOREACH LOOP
     $properties = [];
 
     foreach($this->properties as $property) {
-      $properties[] = [$property->getName() => $property->getValue()];
+      $properties = array_merge($properties, [
+        $property->getName() => $property->getValue()
+      ]);
     }
 
     return $properties;
