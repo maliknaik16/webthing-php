@@ -171,8 +171,10 @@ class Thing implements ThingInterface {
     foreach($this->available_events as $name => $event) {
       $this->thing['events'][$name] = $event['metadata'];
       $this->thing['events'][$name]['links'] = [
-        'rel' => 'event',
-        'href' => sprintf("%s/events/%s", $this->href_prefix, $name),
+        [
+          'rel' => 'event',
+          'href' => sprintf("%s/events/%s", $this->href_prefix, $name),
+        ]
       ];
     }
 
