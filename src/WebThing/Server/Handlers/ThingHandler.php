@@ -48,7 +48,7 @@ class ThingHandler extends BaseHandler {
 
     $this->setStatus(200);
     $this->setContentType('application/json');
-    $this->write(json_encode($description, JSON_UNESCAPED_SLASHES));
+    $this->write(json_encode($description));
     $this->finish();
   }
 

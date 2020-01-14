@@ -26,6 +26,7 @@ class EventHandler extends BaseHandler {
       return;
     }
 
+    $this->setStatus(200);
     $this->setContentType('application/json');
     $this->write(json_encode($thing->getEventDescriptions($event_name)));
   }

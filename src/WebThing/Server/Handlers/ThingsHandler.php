@@ -48,6 +48,6 @@ class ThingsHandler extends BaseHandler {
 
     $this->setStatus(200);
     $this->setContentType('application/json');
-    $this->write(json_encode($descriptions, JSON_UNESCAPED_SLASHES));
+    $this->write(json_encode($descriptions));
   }
 }
