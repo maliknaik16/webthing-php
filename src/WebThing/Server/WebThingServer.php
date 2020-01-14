@@ -10,8 +10,14 @@ namespace WebThing\Server;
 use WebThing\SingleThing;
 use WebThing\MultipleThings;
 use WebThing\ThingsInterface;
+use WebThing\Server\Handlers\WebSocketThingHandler;
 
 use React\EventLoop\Factory;
+use React\Socket\Server;
+
+use Ratchet\App as Application;
+
+use Symfony\Component\Routing\Route;
 
 use Crimson\App;
 use Crimson\HttpServer;
@@ -87,6 +93,13 @@ class WebThingServer {
   protected $server;
 
   /**
+   * The Ratchet App.
+   *
+   * @var \Ratchet\App.
+   */
+  protected $webSocketApp;
+
+  /**
    * Initialize the Web Thing Server.
    */
   public function __construct($things, $hostname = '127.0.0.1', $httpPort = 80, $wsPort = 8080, $tls_options = [], $additional_routes = NULL, $base_path = '', $loop = NULL) {
@@ -148,6 +161,10 @@ class WebThingServer {
       $eventLoop = $loop;
     }
     $this->server = new HttpServer($app, $tls_options, $hostname, $httpPort, $eventLoop);
+    $this->webSocketApp = new Application('localhost', $wsPort, $hostname, $eventLoop);
+    $thingHandler = new WebSocketThingHandler($this->things, $this->hosts, $eventLoop);
+    $this->webSocketApp->route('/', $thingHandler, array('*'));
+    $this->webSocketApp->route('/{thing_id}', $thingHandler, array('*'));
   }
 
   /**
@@ -159,16 +176,22 @@ class WebThingServer {
       'hosts' => $this->hosts
     ];
 
+    $class_args_ws = [
+      'things' => $this->things,
+      'hosts' => $this->hosts,
+      'ws_port' => $this->wsPort,
+    ];
+
     $this->handlers = [
       [
         '\/?',
         'WebThing\Server\Handlers\ThingsHandler',
-        $class_args,
+        $class_args_ws,
       ],
       [
         '\/(?P<thing_id>\d+)\/?',
         'WebThing\Server\Handlers\ThingHandler',
-        $class_args,
+        $class_args_ws,
       ],
       [
         '\/(?P<thing_id>\d+)\/properties\/?',
@@ -220,11 +243,17 @@ class WebThingServer {
       'hosts' => $this->hosts
     ];
 
+    $class_args_ws = [
+      'things' => $this->things,
+      'hosts' => $this->hosts,
+      'ws_port' => $this->wsPort,
+    ];
+
     $this->handlers = [
       [
         '\/?',
         'WebThing\Server\Handlers\ThingHandler',
-        $class_args,
+        $class_args_ws,
       ],
       [
         '\/properties\/?',
@@ -268,6 +297,10 @@ class WebThingServer {
 
   public function start() {
     $this->server->start();
+  }
+
+  public function startWebSocket() {
+    $this->webSocketApp->run();
   }
 
   public function stop() {
