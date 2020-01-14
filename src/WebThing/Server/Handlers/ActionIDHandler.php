@@ -38,11 +38,12 @@ class ActionIDHandler extends BaseHandler {
    */
   public function initialize() {
     parent::initialize();
-    $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
+    $route_args = $this->getRouteArgs();
+    $thing_id = array_key_exists('thing_id', $route_args) ? $route_args['thing_id'] : '0';
 
     $this->thing = $this->getThing($thing_id);
-    $this->action_name = isset($this->getRouteArgs()['action_name']) ?: NULL;
-    $this->action_id = isset($this->getRouteArgs()['action_id']) ?: NULL;
+    $this->action_name = array_key_exists('action_name', $route_args) ? $route_args['action_name'] : NULL;
+    $this->action_id = array_key_exists('action_id', $route_args) ? $route_args['action_id'] : NULL;
   }
 
   /**
@@ -62,6 +63,7 @@ class ActionIDHandler extends BaseHandler {
       return;
     }
 
+    $this->setStatus(200);
     $this->setContentType('application/json');
     $this->write(json_encode($action->asActionDescription()));
   }
@@ -85,7 +87,7 @@ class ActionIDHandler extends BaseHandler {
    */
   public function delete() {
 
-    if ($this->thing == NULL) {
+    if ($this->thing == NULL || $this->action_name == NULL || $this->action_id == NULL) {
       $this->sendError(404);
       return;
     }

@@ -16,7 +16,7 @@ class EventsHandler extends BaseHandler {
    * {@inheritdoc}
    */
   public function get() {
-    $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
+    $thing_id = array_key_exists('thing_id', $this->getRouteArgs()) ? $this->getRouteArgs()['thing_id'] : '0';
 
     $thing = $this->getThing($thing_id);
 
@@ -25,6 +25,7 @@ class EventsHandler extends BaseHandler {
       return;
     }
 
+    $this->setStatus(200);
     $this->setContentType('application/json');
     $this->write(json_encode($thing->getEventDescriptions()));
   }

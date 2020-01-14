@@ -48,6 +48,7 @@ class ActionHandler extends BaseHandler {
       return;
     }
 
+    $this->setStatus(200);
     $this->setContentType('application/json');
     $this->write(json_encode($this->thing->getActionDescriptions($this->action_name)));
   }
@@ -62,7 +63,7 @@ class ActionHandler extends BaseHandler {
       return;
     }
 
-    $message = json_decode($this->getRequest()->getParsedBody());
+    $message = json_decode($this->getRequest()->getBody()->getContents(), true);
 
     if($message === NULL && json_last_error() !== JSON_ERROR_NONE) {
       $this->setStatus(400);
@@ -70,14 +71,13 @@ class ActionHandler extends BaseHandler {
     }
 
     $response = [];
-
     foreach($message as $name => $action_params) {
-      if($name != $action_name) {
+      if($name != $this->action_name) {
         continue;
       }
 
       $input = NULL;
-      if(in_array('input', $action_params)) {
+      if(array_key_exists('input', $action_params)) {
         $input = $action_params['input'];
       }
 
@@ -96,6 +96,7 @@ class ActionHandler extends BaseHandler {
     }
 
     $this->setStatus(201);
+    $this->setContentType('application/json');
     $this->write(json_encode($response));
   }
 }

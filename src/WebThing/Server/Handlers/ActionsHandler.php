@@ -54,18 +54,17 @@ class ActionsHandler extends BaseHandler {
     }
 
     try {
-      $message = json_decode($this->getRequest()->getParsedBody());
+      $message = json_decode($this->getRequest()->getBody()->getContents(), true);
     } catch (\Exception $e) {
       $this->sendError(404);
       return;
     }
 
     $response = [];
-
     foreach($message as $action_name => $action_params) {
       $input = NULL;
 
-      if(in_array('input', $action_params)) {
+      if(array_key_exists('input', $action_params)) {
         $input = $action_params['input'];
       }
 
@@ -85,6 +84,7 @@ class ActionsHandler extends BaseHandler {
     }
 
     $this->setStatus(201);
+    $this->setContentType('application/json');
     $this->write(json_encode($response));
   }
 }
