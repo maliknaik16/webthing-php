@@ -48,6 +48,7 @@ class PropertyHandler extends BaseHandler {
     }
 
     if($this->thing->hasProperty($this->property_name)) {
+      $this->setStatus(200);
       $this->setContentType('application/json');
       $this->write(json_encode([
         $this->property_name => $this->thing->getProperty($this->property_name),
