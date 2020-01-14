@@ -30,7 +30,7 @@ class FadeAction extends Action {
       echo 'Caught exception: ' . $e->getMessage() . PHP_EOL;
     }
 
-    parent::__construct($uuid, $thing, 'fade', $input);
+    parent::__construct($thing, $uuid, 'fade', $input);
   }
 
   public function performAction() {
@@ -120,7 +120,7 @@ function make_thing() {
 function run_server() {
   $thing = make_thing();
 
-  $server = new WebThingServer(new SingleThing($thing), '127.0.0.1', 8080, 8081);
+  $server = new WebThingServer(new SingleThing($thing), '127.0.0.1', 8888, 8081);
 
   $server->start();
 }
