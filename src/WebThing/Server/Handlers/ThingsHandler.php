@@ -18,20 +18,22 @@ class ThingsHandler extends BaseHandler {
    * Handle a GET request.
    */
   public function get() {
+    $wsPort = isset($this->getClassArgs()['ws_port']) ? $this->getClassArgs()['ws_port'] : $this->getRequest()->getUri()->getPort();
     $scheme = $this->getRequest()->getUri()->getScheme();
     $ws = $scheme == 'https' ? 'wss' : 'ws';
     $host = $this->getRequest()->getHeaders()['Host'];
+
     if(!is_string($host)) {
       $host = $host[0];
     }
-    $ws_href = sprintf("%s://%s", $ws, $host);
+    $host_arr = explode(':', $host);
+    $ws_href = sprintf("%s://%s", $ws, $host_arr[0] . ':' . $ws_port);
 
     $descriptions = [];
-
-    foreach($this->things->getThings() as $thing) {
+    foreach($this->things->getThings() as $thing_id => $thing) {
       $description = $thing->asThingDescription();
       $description['href'] = $thing->getHref();
-      $description['link'][] = [
+      $description['links'][] = [
         'rel' => 'alternate',
         'href' => sprintf("%s%s", $ws_href, $thing->getHref()),
       ];
