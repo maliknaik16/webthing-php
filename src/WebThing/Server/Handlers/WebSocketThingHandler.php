@@ -89,22 +89,22 @@ class WebSocketThingHandler implements MessageComponentInterface {
     $message = json_decode($msg, true);
 
 
-    if($message === NULL && json_last_error() !== JSON_ERROR_NONE && $from !== NULL) {
+    if(($message === NULL || empty($message)) && json_last_error() !== JSON_ERROR_NONE && $from !== NULL) {
       $from->send($this->jsonErrorResponse('400 Bad Request', 'Parsing request failed'));
       return;
     }
 
-    if(!isset($message->messageType) && !isset($message->data)) {
+    if(!array_key_exists('messageType', $message) && !array_key_exists('data', $message)) {
       $from->send($this->jsonErrorResponse('400 Bad Request', 'Invalid message'));
 
       return;
     }
 
 
-    $msgType = $message->messageType;
+    $msgType = $message['messageType'];
 
     if($msgType == 'setProperty') {
-      foreach($message->data as $property_name => $property_value) {
+      foreach($message['data'] as $property_name => $property_value) {
         try {
           $this->thing->setProperty($property_name, $property_value);
         } catch(\Exception $e) {
@@ -112,7 +112,7 @@ class WebSocketThingHandler implements MessageComponentInterface {
         }
       }
     }else if($msgType == 'requestAction') {
-      foreach($message->data as $action_name => $action_params) {
+      foreach($message['data'] as $action_name => $action_params) {
         $input = NULL;
 
         if(array_key_exists('input', $action_params)) {
@@ -131,7 +131,7 @@ class WebSocketThingHandler implements MessageComponentInterface {
         }
       }
     }else if($msgType == 'addEventSubscription') {
-      foreach($message->data as $event_name => $event_) {
+      foreach($message['data'] as $event_name => $event_) {
         $this->thing->addEventSubscriber($event_name, $this);
       }
     }else{
