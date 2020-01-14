@@ -132,7 +132,7 @@ class WebSocketThingHandler implements MessageComponentInterface {
       }
     }else if($msgType == 'addEventSubscription') {
       foreach($message['data'] as $event_name => $event_) {
-        $this->thing->addEventSubscriber($event_name, $this);
+        $this->thing->addEventSubscriber($event_name, $from);
       }
     }else{
       $from->send($this->jsonErrorResponse('400 Bad Request', 'Unknown messageType: ' . $msgType, TRUE, $message));
