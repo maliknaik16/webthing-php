@@ -123,6 +123,7 @@ function run_server() {
   $server = new WebThingServer(new SingleThing($thing), '127.0.0.1', 8888, 8081);
 
   $server->start();
+  $server->startWebSocket();
 }
 
 

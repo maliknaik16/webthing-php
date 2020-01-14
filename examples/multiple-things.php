@@ -190,6 +190,7 @@ function run_server() {
 
   // Start the server.
   $server->start();
+  $server->startWebSocket();
 }
 
 run_server();
