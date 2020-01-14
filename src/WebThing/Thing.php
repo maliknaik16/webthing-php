@@ -548,7 +548,7 @@ class Thing implements ThingInterface {
       $this->subscribers->detach($ws);
     }
 
-    foreach($this->available_events as $name) {
+    foreach($this->available_events as $name => $value_) {
       $this->removeEventSubscriber($name, $ws);
     }
   }
