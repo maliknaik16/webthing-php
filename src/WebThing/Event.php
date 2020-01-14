@@ -44,11 +44,11 @@ class Event implements EventInterface {
   /**
    * Initialize the object.
    */
-  public function __construct(ThingInterface $thing, $name, $data = null) {
+  public function __construct(ThingInterface $thing, $name, $data = NULL) {
     $this->thing = $thing;
     $this->name = $name;
     $this->data = $data;
-    $this->time = timestamp();
+    $this->time = date("c", time());
   }
 
   /**
@@ -61,7 +61,7 @@ class Event implements EventInterface {
       ],
     ];
 
-    if(!empty($data)) {
+    if(!is_null($this->data)) {
       $description[$this->name]['data'] = $this->data;
     }
 

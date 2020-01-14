@@ -320,8 +320,8 @@ class Thing implements ThingInterface {
           array_push($descriptions, $action->asActionDescription());
         }
       }
-    }else if(in_array($action_name, $this->actions)) {
-      foreach($this->actions[$name] as $action) {
+    }else if(array_key_exists($action_name, $this->actions)) {
+      foreach($this->actions[$action_name] as $action) {
         array_push($descriptions, $action->asActionDescription());
       }
     }
@@ -431,17 +431,17 @@ class Thing implements ThingInterface {
    * {@inheritdoc}
    */
   public function getAction($action_name, $action_id) {
-    if(!in_array($action_name, $this->actions)) {
-      return null;
+    if(!array_key_exists($action_name, $this->actions)) {
+      return NULL;
     }
 
-    foreach($this->actions[$action_name] as $action) {
-      if($action->id == $action_id) {
+    foreach($this->actions[$action_name] as $k => $action) {
+      if($action->getId() == $action_id) {
         return $action;
       }
     }
 
-    return null;
+    return NULL;
   }
 
   /**
@@ -472,22 +472,24 @@ class Thing implements ThingInterface {
   public function performAction($action_name, $input = NULL) {
 
     // TODO: Re check this class again.
-    if(!in_array($action_name, $this->available_actions)) {
+    if(!array_key_exists($action_name, $this->available_actions)) {
       return NULL;
     }
 
     $action_type = $this->available_actions[$action_name];
 
-    if(in_array('input', $action_type['metadata'])) {
+    if(array_key_exists('input', $action_type['metadata'])) {
       $validator = new Validator();
-      $validator->validate($input, $action_type['metadata']['input']);
+      $data = json_decode(json_encode($input));
+      $validator->validate($data, $action_type['metadata']['input']);
 
       if(!$validator->isValid()) {
         return NULL;
       }
     }
 
-    $action = $action_type['class']($input);
+    $class_name = $action_type['class'];
+    $action = new $class_name($this, $input);
     $action->setHrefPrefix($this->href_prefix);
     $this->actionNotify($action);
     array_push($this->actions[$action_name], $action);
@@ -502,17 +504,17 @@ class Thing implements ThingInterface {
     $action = $this->getAction($action_name, $action_id);
 
     if(!$action) {
-      return false;
+      return FALSE;
     }
 
     $action->cancel();
     // TODO: Find the solution to remove specific element from the array.
 
-    if(($key = array_search($action, $this->actions[$action_name], true)) !== FALSE) {
+    if(($key = array_search($action, $this->actions[$action_name], TRUE)) !== FALSE) {
       unset($this->actions[$action_name][$key]);
-      return true;
+      return TRUE;
     }
-    return false;
+    return FALSE;
   }
 
   /**

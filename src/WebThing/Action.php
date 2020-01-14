@@ -84,10 +84,10 @@ class Action implements ActionInterface {
     $this->name = $name;
     $this->input = $input;
     $this->href_prefix = '';
-    $this->href = sprintf('/actions/%s/%s', $this->name, $this->id);
+    $this->href = sprintf("/actions/%s/%s", $this->name, $this->id);
     $this->status = 'created';
-    $this->time_requested = timestamp();
-    $this->time_completed = null;
+    $this->time_requested = date("c", time());
+    $this->time_completed = NULL;
   }
 
   /**
@@ -203,7 +203,7 @@ class Action implements ActionInterface {
    */
   public function finish() {
     $this->status = 'completed';
-    $this->time_completed = timestamp();
+    $this->time_completed = date("c", time());
     $this->thing->actionNotify($this);
   }
 }
