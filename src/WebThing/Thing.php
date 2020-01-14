@@ -462,7 +462,7 @@ class Thing implements ThingInterface {
 
     $this->available_events[$name] = [
       'metadata' => $metadata,
-      'subscribers' => [],
+      'subscribers' => new \SplObjectStorage,
     ];
   }
 
@@ -537,7 +537,7 @@ class Thing implements ThingInterface {
    * {@inheritdoc}
    */
   public function addSubscriber($ws) {
-    $this->subscribers->add($ws);
+    $this->subscribers->attach($ws);
   }
 
   /**
@@ -557,8 +557,13 @@ class Thing implements ThingInterface {
    * {@inheritdoc}
    */
   public function addEventSubscriber($name, $ws) {
-    if(in_array($name, $this->available_events)) {
-      $this->available_events[$name]['subscribers'][] = $ws;
+    if(array_key_exists($name, $this->available_events)) {
+      if(array_key_exists('subscribers', $this->available_events[$name])) {
+        $this->available_events[$name]['subscribers']->attach($ws);
+      }else{
+        $this->available_events[$name]['subscribers'] = new \SplObjectStorage;
+        $this->available_events[$name]['subscribers']->attach($ws);
+      }
     }
   }
 
@@ -566,8 +571,11 @@ class Thing implements ThingInterface {
    * {@inheritdoc}
    */
   public function removeEventSubscriber($name, $ws) {
-    if(in_array($name, $this->available_events) && ($key = array_search($ws, $this->available_events[$name]['subscribers'])) !== FALSE) {
-      unset($this->available_events[$name]['subscribers'][$key]);
+    if(array_key_exists($name, $this->available_events) &&
+      $this->available_events[$name]['subscribers']->contains($ws) ) {
+      $this->available_events[$name]['subscribers']->detach($ws);
+      //($key = array_search($ws, $this->available_events[$name]['subscribers'])) !== FALSE) {
+      //unset($this->available_events[$name]['subscribers'][$key]);
     }
   }
 
@@ -590,7 +598,7 @@ class Thing implements ThingInterface {
    * {@inheritdoc}
    */
   public function eventNotify(EventInterface $event) {
-    if(!in_array($event, $this->available_events)) {
+    if(!array_key_exists($event->getName(), $this->available_events)) {
       return;
     }
 
