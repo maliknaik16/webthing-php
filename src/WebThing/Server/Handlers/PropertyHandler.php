@@ -31,10 +31,12 @@ class PropertyHandler extends BaseHandler {
    */
   public function initialize() {
     parent::initialize();
-    $thing_id = array_key_exists('thing_id', $this->getRouteArgs()) ? $this->getRouteArgs()['thing_id'] : '0';
+
+    $route_args = $this->getRouteArgs();
+    $thing_id = array_key_exists('thing_id', $route_args) ? $route_args['thing_id'] : '0';
 
     $this->thing = $this->getThing($thing_id);
-    $this->property_name = isset($this->getRouteArgs()['property_name']) ? $this->getRouteArgs()['property_name'] : NULL;
+    $this->property_name = array_key_exists('property_name', $route_args) ? $route_args['property_name'] : NULL;
   }
 
   /**

@@ -24,7 +24,7 @@ class ActionsHandler extends BaseHandler {
    */
   public function initialize() {
     parent::initialize();
-    $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
+    $thing_id = array_key_exists('thing_id', $this->getRouteArgs()) ? $this->getRouteArgs()['thing_id'] : '0';
     $this->thing = $this->getThing($thing_id);
   }
 

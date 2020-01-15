@@ -16,8 +16,9 @@ class EventHandler extends BaseHandler {
    * {@inheritdoc}
    */
   public function get() {
-    $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
-    $event_name = isset($this->getRouteArgs()['event_name']) ?: NULL;
+    $route_args = $this->getRouteArgs();
+    $thing_id = array_key_exists('thing_id', $route_args) ? $route_args['thing_id'] : '0';
+    $event_name = array_key_exists('event_name', $route_args) ? $route_args['event_name'] : NULL;
 
     $thing = $this->getThing($thing_id);
 
