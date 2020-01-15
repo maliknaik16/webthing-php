@@ -3,6 +3,11 @@ php:
   - '7.1'
 os:
   - linux
+addons:
+  apt:
+    packages:
+      - python3-setuptools
+      - python3-pip
 before_install:
   - chmod +x ./travis.sh
 script:
