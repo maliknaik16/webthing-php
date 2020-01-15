@@ -18,7 +18,7 @@ composer require webthing/webthing:^0.0.1
 ```
 
 # Running the Example
-The following commands clones this repository and install all dependencies using the composer and run the `single-thing.php` example.
+The following list of commands clones this repository and installs all dependencies using the composer and runs the `single-thing.php` example.
 ```bash
 git clone https://github.com/maliknaik16/webthing-php.git
 cd webthing-php
@@ -165,6 +165,12 @@ function readFromGpio() {
 }
 ```
 This will update our ``Value`` object with the sensor readings via the ``$level->notifyOfExternalUpdate(readFromGpio());`` call. The ``Value`` object now notifies the property and the thing that the value has changed, which in turn notifies all websocket listeners.
+
+# Resources
+  - [https://iot.mozilla.org/wot](https://iot.mozilla.org/wot)
+  - [https://iot.mozilla.org/framework/](https://iot.mozilla.org/framework/)
+  - [https://iot.mozilla.org/gateway/](https://iot.mozilla.org/gateway/)
+  - [https://www.w3.org/WoT/IG/](https://www.w3.org/WoT/IG/)
 
 # License
 
