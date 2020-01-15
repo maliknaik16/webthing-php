@@ -49,7 +49,8 @@ class Value {
    */
   public function set($value) {
     if($this->value_forwarder != null) {
-      $this->value_forwarder($value);
+      $value_forwarder = $this->value_forwarder;
+      $value_forwarder($value);
     }
 
     $this->notifyOfExternalUpdate($value);
