@@ -21,5 +21,5 @@ kill -15 $EXAMPLE_PID
 php examples/multiple-things.php &
 EXAMPLE_PID=$!
 sleep 5
-./webthing-tester/test-client.py --protocol http --host localhost --port 8080 --path-prefix "/0" --debug
+./webthing-tester/test-client.py --protocol http --host localhost --port 8888 --path-prefix "/0" --debug
 kill -15 $EXAMPLE_PID
