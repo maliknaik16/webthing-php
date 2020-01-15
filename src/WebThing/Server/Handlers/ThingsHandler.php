@@ -18,7 +18,7 @@ class ThingsHandler extends BaseHandler {
    * Handle a GET request.
    */
   public function get() {
-    $wsPort = isset($this->getClassArgs()['ws_port']) ? $this->getClassArgs()['ws_port'] : $this->getRequest()->getUri()->getPort();
+    $ws_port = isset($this->getClassArgs()['ws_port']) ? $this->getClassArgs()['ws_port'] : $this->getRequest()->getUri()->getPort();
     $scheme = $this->getRequest()->getUri()->getScheme();
     $ws = $scheme == 'https' ? 'wss' : 'ws';
     $host = $this->getRequest()->getHeaders()['Host'];
