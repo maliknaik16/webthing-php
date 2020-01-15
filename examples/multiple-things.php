@@ -33,7 +33,7 @@ class FadeAction extends Action {
       echo 'Caught exception: ' . $e->getMessage() . PHP_EOL;
     }
 
-    parent::__construct($uuid, $thing, 'fade', $input);
+    parent::__construct($thing, $uuid, 'fade', $input);
   }
 
   public function performAction() {
@@ -186,7 +186,7 @@ function run_server() {
 
   // If adding more than one thing, use MultipleThings() with a name.
   // In the single thing case, the thing's name will be broadcast.
-  $server = new WebThingServer(new MultipleThings([$light, $sensor], 'LightAndTempDevice'), '127.0.0.1', 8080, 8081, [], NULL, '', $loop);
+  $server = new WebThingServer(new MultipleThings([$light, $sensor], 'LightAndTempDevice'), '127.0.0.1', 8888, 8081, [], NULL, '', $loop);
 
   // Start the server.
   $server->start();
