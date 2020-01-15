@@ -60,7 +60,7 @@ class ExampleDimmableLight extends Thing {
       $this,
       'on',
       new Value(TRUE, function($v) {
-        echo 'On-State is now ' . $v;
+        echo "On-State is now " . $v . "\n";
       }),
       [
         '@type' => 'OnOffProperty',
@@ -74,7 +74,7 @@ class ExampleDimmableLight extends Thing {
       $this,
       'brightness',
       new Value(50, function($v) {
-        echo 'Brightness is now ' . $v;
+        echo "Brightness is now " . $v . "\n";
       }),
       [
         '@type' => 'BrightnessProperty',
