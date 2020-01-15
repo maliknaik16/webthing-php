@@ -16,7 +16,7 @@ class PropertiesHandler extends BaseHandler {
    * {@inheritdoc}
    */
   public function get() {
-    $thing_id = isset($this->getRouteArgs()['thing_id']) ?: '0';
+    $thing_id = isset($this->getRouteArgs()['thing_id']) ? $this->getRouteArgs()['thing_id'] : '0';
     $thing = $this->getThing($thing_id);
 
     if($thing === NULL) {
