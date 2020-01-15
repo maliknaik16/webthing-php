@@ -135,10 +135,10 @@ class FakeGpioHumiditySensor extends Thing {
     global $loop;
 
     parent::__construct(
-      'urn:dev:ops:my-lamp-1234',
-      'My Lamp',
-      ['OnOffSwitch', 'Light'],
-      'A web connected lamp'
+      'urn:dev:ops:my-humidity-sensor-1234',
+      'My Humidity Sensor',
+      ['MultiLevelSensor'],
+      'A web connected humidity sensor'
     );
 
     $this->level = new Value(0.0);
