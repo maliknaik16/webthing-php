@@ -164,21 +164,6 @@ function readFromGpio() {
   return abs(70.0 * rand() * (-0.5 + rand()));
 }
 ```
-.. code:: python
-
-  self.sensor_update_task = \
-      get_event_loop().create_task(self.update_level())
-
-  async def update_level(self):
-      try:
-          while True:
-              await sleep(3)
-              new_level = self.read_from_gpio()
-              logging.debug('setting new humidity level: %s', new_level)
-              self.level.notify_of_external_update(new_level)
-      except CancelledError:
-          pass
-
 This will update our ``Value`` object with the sensor readings via the ``$level->notifyOfExternalUpdate(readFromGpio());`` call. The ``Value`` object now notifies the property and the thing that the value has changed, which in turn notifies all websocket listeners.
 
 # License
