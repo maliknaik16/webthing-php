@@ -1,4 +1,4 @@
-# Web Things PHP
+# Web of Things
 
 [![travis](https://api.travis-ci.org/maliknaik16/webthing-php.svg?branch=master)](https://travis-ci.com/maliknaik16/webthing-php)
 [![GitHub forks](https://img.shields.io/github/forks/maliknaik16/webthing-php)](https://github.com/maliknaik16/webthing-php/network/)
